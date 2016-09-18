@@ -18,25 +18,21 @@ public class Main extends PluginBase {
 			}
 		});
 		
-		getServer().getScheduler().scheduleAsyncTask(new AsyncTask() {
-
-			@Override
-			public void onRun() {
-				while (true) {
-					if (Runtime.getRuntime().totalMemory() / 1024 / 1024 > (Runtime.getRuntime().maxMemory() / 1024 / 1024) - 256) {
-						getLogger().critical(config.getString("restart-message"));
-						getServer().getOnlinePlayers().forEach((uuid, player) -> {
-							player.kick(config.getString("restart-message"), false);
-						});
-						getServer().forceShutdown();
-					}
-					try {
-						Thread.sleep(10);
-					} catch (InterruptedException e) {
-						// ignore
-					}
+		new Thread(() -> {
+			while (true) {
+				if (Runtime.getRuntime().totalMemory() / 1024 / 1024 > (Runtime.getRuntime().maxMemory() / 1024 / 1024) - 256) {
+					getLogger().critical(config.getString("restart-message"));
+					getServer().getOnlinePlayers().forEach((uuid, player) -> {
+						player.kick(config.getString("restart-message"), false);
+					});
+					getServer().forceShutdown();
+				}
+				try {
+					Thread.sleep(0, 10);
+				} catch (InterruptedException e) {
+					// ignore
 				}
 			}
-		});
+		}).start();
 	}
 }
