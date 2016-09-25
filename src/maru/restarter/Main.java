@@ -1,12 +1,12 @@
 package maru.restarter;
 
 import cn.nukkit.plugin.PluginBase;
-import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.ConfigSection;
 
 public class Main extends PluginBase {
 	private Config config;
+	private Thread thread;
 	
 	@SuppressWarnings("serial")
 	@Override
@@ -18,7 +18,7 @@ public class Main extends PluginBase {
 			}
 		});
 		
-		new Thread(() -> {
+		thread = new Thread(() -> {
 			while (true) {
 				if (Runtime.getRuntime().totalMemory() / 1024 / 1024 > (Runtime.getRuntime().maxMemory() / 1024 / 1024) - 256) {
 					getLogger().critical(config.getString("restart-message"));
@@ -33,6 +33,12 @@ public class Main extends PluginBase {
 					// ignore
 				}
 			}
-		}).start();
+		});
+		thread.start();
+	}
+	
+	@Override
+	public void onDisable() {
+		thread.interrupt();
 	}
 }
